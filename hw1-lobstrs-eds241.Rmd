@@ -80,7 +80,7 @@ Step 1: Anticipating potential sources of selection bias
 
 **a.** Do the control sites (Arroyo Quemado, Carpenteria, and Mohawk) provide a strong counterfactual for our treatment sites (Naples, Isla Vista)? Write a paragraph making a case for why this comparison is centris paribus or whether selection bias is likely (be specific!).
 
-*The Isla Vista research site appears to be much larger than the other sites, which can influence abundance measures (by inflating counts) if not properly accounted for. Additionally, the Naples and Isla Vista sites are closer together, potentially introducing some bias in location/habitat similarity as compared to the control group, which is spread out over more coastline.*
+**The Isla Vista research site appears to be much larger than the other sites, which can influence abundance measures (by inflating counts) if not properly accounted for. Additionally, the Naples and Isla Vista sites are closer together, potentially introducing some bias in location/habitat similarity as compared to the control group, which is spread out over more coastline.**
 
 ------------------------------------------------------------------------
 
@@ -468,7 +468,7 @@ a\. Discuss whether you think `spillover effects` are likely in this research co
 
 b\. Explain why spillover is an issue for the identification of causal effects
 
-**Spillover is an issues for the identification of causal effects because it can muddle the difference between the control and treatment means, essentially obscuring the identification of the true impact of the treatment.**
+**Spillover is an issues for the identification of causal effects because it can muddle the difference between the control and treatment means, essentially making it difficult to identify the true impact of the treatment.**
 
 c\. How does spillover relate to impact in this research setting?
 
