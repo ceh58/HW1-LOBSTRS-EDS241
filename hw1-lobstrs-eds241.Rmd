@@ -462,16 +462,26 @@ plot_counts %>%
 
 Step 8: Reconsider causal identification assumptions
 
-a.  Discuss whether you think `spillover effects` are likely in this research context (see Glossary of terms; <https://docs.google.com/document/d/1RIudsVcYhWGpqC-Uftk9UTz3PIq6stVyEpT44EPNgpE/edit?usp=sharing>)
+a\. Discuss whether you think `spillover effects` are likely in this research context (see Glossary of terms; <https://docs.google.com/document/d/1RIudsVcYhWGpqC-Uftk9UTz3PIq6stVyEpT44EPNgpE/edit?usp=sharing>)
 
-b.  Explain why spillover is an issue for the identification of causal effects
+**There is certainly a possibility for spillover effects in this research context because the MPA/non-MPA boundaries are not physical and lobsters are very mobile. Thus, there is nothing stopping lobsters from the MPA from moving outside the MPA, especially if the MPA is doing what it is designed to do and the numbers of lobsters are increasing.**
 
-c.  How does spillover relate to impact in this research setting?
+b\. Explain why spillover is an issue for the identification of causal effects
 
-d.  Discuss the following causal inference assumptions in the context of the MPA treatment effect estimator. Evaluate if each of the assumption are reasonable:
+**Spillover is an issues for the identification of causal effects because it can muddle the difference between the control and treatment means, essentially obscuring the identification of the true impact of the treatment.**
 
-    1)  SUTVA: Stable Unit Treatment Value assumption
-    2)  Excludability assumption
+c\. How does spillover relate to impact in this research setting?
+
+**In this research setting, spillover can raise the mean control (non-MPA) lobster counts. This makes it difficult to assess the true impact of the MPA treatment since the control group is artificially inflated to some unknown degree.**
+
+d\. Discuss the following causal inference assumptions in the context of the MPA treatment effect estimator. Evaluate if each of the assumption are reasonable:
+
+```         
+1)  SUTVA: Stable Unit Treatment Value assumption
+    The SUTVA assumption is likely violated in this context, as the control group (non-MPA) is likely indirectly affected by spillover from the treatment (MPA) group. 
+2)  Excludability assumption
+    It is unlikely that the excludability assumption is violated in this context, as the models proved to be robust and thus the treatment effect was stable. If there was another mechanism at play, outside of the proposed mechanisms, it would likely manifest as differences in the models. 
+```
 
 ------------------------------------------------------------------------
 
