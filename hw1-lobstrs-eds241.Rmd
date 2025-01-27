@@ -232,7 +232,6 @@ legend("topright", legend = c("MPA", "non-MPA"),
 # USE: gt_summary::tbl_summary()
 # Compare the means of the counts by treatment group
 spiny_counts %>% 
-    #ungroup() %>%
     dplyr::select(treat, counts) %>%
     tbl_summary(
         by = treat,
@@ -377,7 +376,7 @@ export_summs(m1_ols, m2_pois, m3_nb, robust = "HC2",
 
 ```
 
-**To understand whether or not the treatment effect is `robust`, we must first calculate percent change for the ols model. Since the coefficient told us that the are on average 5.36 more lobsters in MPAs than non-MPAs (where there are an average of 22.73 lobsters), we can divide 5.36/22.73 and get 23.5%. Upon interpreting both the Poisson and NB models, we found the percent change to be 23.4%. I would conclude that treatment effect is stable across the model specifications.**
+**To understand whether or not the treatment effect is `robust`, we must first calculate percent change for the ols model. Since the coefficient told us that the are on average 5.36 more lobsters in MPAs than non-MPAs (where there are an average of 22.73 lobsters), we divide 5.36/22.73 to get 23.5%. Upon interpreting both the Poisson and NB models, we found the percent change to be 23.4%. I would conclude that treatment effect is stable across the model specifications.**
 
 ------------------------------------------------------------------------
 
@@ -490,8 +489,116 @@ d\. Discuss the following causal inference assumptions in the context of the MPA
 > Use the recent lobster abundance data with observations collected up until 2024 (`lobster_sbchannel_24.csv`) to run an analysis evaluating the effect of MPA status on lobster counts using the same focal variables.
 
 a.  Create a new script for the analysis on the updated data
+
+```{r}
+# Upload updated data
+rawdata_ec <- read_csv(here("data", "lobster_sbchannel_24.csv"), na = c("-99999")) %>%
+    clean_names()
+
+# Add reef variable
+tidydata_ec <- rawdata_ec %>%
+    mutate(reef = factor(site))
+
+# Assign levels to the reef variable
+levels(tidydata_ec$reef) = c("Arroyo Quemado", "Carpenteria", "Isla Vista", "Mohawk", "Naples")
+
+# Create new df for analysis
+spiny_counts_ec <- tidydata_ec %>%
+    group_by(site, year, transect) %>%
+    summarize(counts = sum(count, na.rm = TRUE),
+           mean_size = mean(size_mm, na.rm = TRUE)) %>%
+    mutate(mpa = case_when(
+        site == "IVEE" ~ "MPA",
+        site == "NAPL" ~ "MPA",
+        site == "AQUE" ~ "non_MPA",
+        site == "CARP" ~ "non_MPA",
+        site == "MOHK" ~ "non_MPA")) %>%
+    mutate(treat = case_when(
+        mpa == "MPA" ~ 1,
+        mpa == "non_MPA" ~ 0)) %>%
+    ungroup()
+
+# Compare old data...
+spiny_counts %>% 
+    dplyr::select(treat, counts) %>%
+    tbl_summary(
+        by = treat,
+        statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
+    modify_header(label ~ "**Variable**") %>%
+    modify_spanning_header(c("stat_1", "stat_2") ~ "**Treatment**") 
+
+# ...to updated data
+spiny_counts_ec %>% 
+    dplyr::select(treat, counts) %>%
+    tbl_summary(
+        by = treat,
+        statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
+    modify_header(label ~ "**Variable**") %>%
+    modify_spanning_header(c("stat_1", "stat_2") ~ "**Treatment**") 
+```
+
 b.  Run at least 3 regression models & assess model diagnostics
+
+```{r}
+# Model 1 OLS
+m1_ols_ec <- lm(counts ~ treat, spiny_counts_ec)
+
+# Assess model 1
+summ(m1_ols_ec, model.fit = FALSE) 
+check_model(m1_ols_ec, check = "normality")
+
+# Model 2 Poisson
+m2_pois_ec <- glm(counts~treat,
+               family = poisson(link = "log"),
+               data = spiny_counts_ec)
+
+# Assess model 2
+summ(m2_pois_ec, model.fit = FALSE)
+check_model(m2_pois_ec)
+check_overdispersion(m2_pois_ec)
+check_zeroinflation(m2_pois_ec)
+
+# Model 3 Negative Binomial
+m3_nb_ec <- glm.nb(counts~treat,
+                data = spiny_counts_ec)
+
+# Assess model 3
+summ(m3_nb_ec, model.fit = FALSE)
+check_model(m3_nb_ec)
+check_overdispersion(m3_nb_ec)
+check_zeroinflation(m3_nb_ec)
+
+# Compare models for updated data
+export_summs(m1_ols_ec, m2_pois_ec, m3_nb_ec, robust = "HC2",
+             model.names = c("OLS updated","Poisson updated", "NB updated"),
+             statistics = "none")
+
+# Percent change for model 1
+7.72/27.27 #28.3%
+
+# Percent change for models 2 and 3
+exp(0.25)-1 #28.4%
+
+# Compare updated models to old models
+export_summs(m1_ols, m1_ols_ec, robust = "HC2",
+             model.names = c("OLS old","OLS updated"),
+             statistics = "none")
+
+export_summs(m2_pois, m2_pois_ec, robust = "HC2",
+             model.names = c("Poisson old", "Poisson updated"),
+             statistics = "none")
+
+export_summs(m3_nb, m3_nb_ec, robust = "HC2",
+             model.names = c("NB old", "NB updated"),
+             statistics = "none")
+```
+
 c.  Compare and contrast results with the analysis from the 2012-2018 data sample (\~ 2 paragraphs)
+
+**In the analysis of the updated data, we see that treatment effect remains robust, as evidenced by a consistent 28% change between the control (non-MPA) and treatment (MPA) groups across all three models. We observed similar stability, but at lower 23% change, in the analysis of the old (2012-2018) data sample. We see that the mean counts for the control and treatment groups have both increased in the updated dataset as compared to the old data sample, increasing by 4 lobsters for the control group and 7 lobsters for the treatment group.** 
+
+**While the standard deviation did not change for the control group, we see that it increased from 44 to 46 in the treatment group, indicating higher variability in the treatment counts in the updated dataset. Perhaps there are some outliers of higher counts in the treatment group, potentially indicating positive long-term effects of the MPA implementation. There appears to be lower incidence of zero inflation in the updated dataset (in the negative binomial model #3), potentially a result of fewer 0 count observations and an overall increase in lobster populations (maybe also related to the effectiveness of the MPA). However, this raises some concern for the spillover effect. Perhaps the hypothesized success of the MPA is greater than we can assess since a surplus of lobsters in the MPAs has encouraged movement to non-MPA areas, where they are contributing to a rise in mean counts (as we observed in the updated data) just not at the same rate we are observing a rise in mean counts in the treatment areas.**
+
 
 ------------------------------------------------------------------------
 
